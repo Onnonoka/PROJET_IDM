@@ -13,6 +13,7 @@ import org.eclipse.emf.ecore.xmi.impl.XMLMapImpl;
 
 import SimplStateMachine.*;
 import SimplStateMachine.impl.BooleanDataImpl;
+import SimplStateMachine.impl.DataImpl;
 import SimplStateMachine.impl.IntegerDataImpl;
 
 public class StateMachineManipulation {
@@ -142,8 +143,6 @@ public class StateMachineManipulation {
 		return null;
 	}
 	
-	//public 
-	
 	public Transition getTriggerableTransition(String evt, StateMachine sm) {
 		boolean fini = false;
 		State activeState = this.getLeafActiveState(sm);
@@ -151,8 +150,12 @@ public class StateMachineManipulation {
 		while(!fini) {
 			for (Transition t : sm.getTransitions())
 				if (t.getEvent().getName().equals(evt) && (activeState == t.getSource())) {
-					trans = t;
-					fini = true;
+					System.out.println("In Guard");
+					if (t.getGuard() == null || ((BooleanData)computeExpression(t.getGuard())).isValue()) {
+						trans = t;
+						fini = true;
+					}
+					System.out.println("out Guard");
 				}
 			if (!fini) {
 				activeState = activeState.getContainer();
@@ -164,8 +167,7 @@ public class StateMachineManipulation {
 	}
 	
 	public Data computeExpression(ExpressionElement e) {
-		
-		Data result = null;
+		System.out.println(e.getClass().getName());
 		
 		if (e instanceof VariableReference) return ((VariableReference) e).getVariable().getValue();
 		if (e instanceof Data) return (Data) e;
@@ -173,6 +175,7 @@ public class StateMachineManipulation {
 		Expression exp = (Expression) e;
 		Data left = computeExpression(exp.getLeft());
 		Data right = computeExpression(exp.getRight());
+		Data result = null;
 		
 		switch(exp.getOperator()) {
 			case ADD :
@@ -234,20 +237,17 @@ public class StateMachineManipulation {
 				((BooleanData)result).setValue(!((BooleanData) left).isValue());
 				break;
 		}
-		
 		return result;
 	}
 
 	public void computeOperations(Operation op) {
-		System.out.println("computeOperations");
 		if (op != null) {
 			for (Assignment a : op.getContents()) {
+				System.out.println("In Assignement");
 				a.getVariable().setValue(computeExpression(a.getExpression()));
+				System.out.println("Out Assignement");
 			}
-		} else {
-			System.out.println("op is null");
 		}
-		
 	}
 	
 	public void processEvent(StateMachine sm, String event) {
@@ -286,10 +286,6 @@ public class StateMachineManipulation {
             event = scan.nextLine();
             if (!event.equals("end")) 
             	processEvent(sm,event);
-            System.out.println("Les variables ont pour valeur apres traitement : ");
-        	for (Variable v : sm.getVariables()) {
-            	System.out.println(v.getName() + " = " + v.getValue());
-        	}
             System.out.println();
         }
 		scan.close();
