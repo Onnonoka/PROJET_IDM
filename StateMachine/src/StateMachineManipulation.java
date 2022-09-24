@@ -12,6 +12,8 @@ import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMLMapImpl;
 
 import SimplStateMachine.*;
+import SimplStateMachine.impl.BooleanDataImpl;
+import SimplStateMachine.impl.IntegerDataImpl;
 
 public class StateMachineManipulation {
 
@@ -76,8 +78,10 @@ public class StateMachineManipulation {
 			s.setIsActive(true);
 			if (s instanceof CompositeState)
 				s = ((CompositeState) s).getInitialState().getReferencedState();
-			else 
+			else  {
+				computeOperations(s.getOperation());
 				s = null;
+			}
 		}
 	}
 	
@@ -158,128 +162,110 @@ public class StateMachineManipulation {
 		}
 		return trans;
 	}
-	/*
+	
 	public Data computeExpression(ExpressionElement e) {
-		if (e instanceof Variable) return ((Variable) e).getValue();
+		
+		Data result = null;
+		
+		if (e instanceof VariableReference) return ((VariableReference) e).getVariable().getValue();
 		if (e instanceof Data) return (Data) e;
+		
 		Expression exp = (Expression) e;
 		Data left = computeExpression(exp.getLeft());
 		Data right = computeExpression(exp.getRight());
-		Data result;
+		
 		switch(exp.getOperator()) {
 			case ADD :
-				int result = ((IntegerData) left).getValue() + ((IntegerData) right).getValue();
+				result = new IntegerDataImpl();
+				((IntegerData)result).setValue(((IntegerData) left).getValue() + ((IntegerData) right).getValue());
+				break;
 			case SUB :
-				int result = ((IntegerData) left).getValue() - ((IntegerData) right).getValue();
+				result = new IntegerDataImpl();
+				((IntegerData)result).setValue(((IntegerData) left).getValue() - ((IntegerData) right).getValue());
+				break;
 			case MUL :
-				int result = ((IntegerData) left).getValue() * ((IntegerData) right).getValue();
+				result = new IntegerDataImpl();
+				((IntegerData)result).setValue(((IntegerData) left).getValue() * ((IntegerData) right).getValue());
+				break;
 			case DIV :
-				int result = ((IntegerData) left).getValue() / ((IntegerData) right).getValue();
+				result = new IntegerDataImpl();
+				((IntegerData)result).setValue(((IntegerData) left).getValue() / ((IntegerData) right).getValue());
+				break;
 			case EQ :
-				boolean result = ((IntegerData) left).getValue() == ((IntegerData) right).getValue();
-			case GT :
-				boolean result = ((IntegerData) left).getValue() > ((IntegerData) right).getValue();
-			case LT :
-				return computeNumberExpression(exp.getLeft()) < computeNumberExpression(exp.getRight());
-			case GTE :
-				return computeNumberExpression(exp.getLeft()) >= computeNumberExpression(exp.getRight());
-			case LTE :
-				return computeNumberExpression(exp.getLeft()) <= computeNumberExpression(exp.getRight());
-			case AND :
-				return computeBooleanExpression(exp.getLeft()) && computeBooleanExpression(exp.getRight());
-			case OR :
-				return computeBooleanExpression(exp.getLeft()) || computeBooleanExpression(exp.getRight());
-			case NEQ :
-				return computeBooleanExpression(exp.getLeft()) != computeBooleanExpression(exp.getRight());
-			case NOT :
-				return !computeBooleanExpression(exp.getLeft());
-			default :
-				return null;
-		}
-	}*/
-	
-	public int computeNumberExpression(ExpressionElement e) {
-		if (e instanceof IntegerVariable) return ((IntegerData) ((Variable) e).getValue() ).getValue();
-		if (e instanceof IntegerData) return ((IntegerData) e).getValue();
-		Expression exp = (Expression) e;
-		switch(exp.getOperator()) {
-			case ADD :
-				return computeNumberExpression(exp.getLeft()) + computeNumberExpression(exp.getRight());
-			case SUB :
-				return computeNumberExpression(exp.getLeft()) - computeNumberExpression(exp.getRight());
-			case MUL :
-				return computeNumberExpression(exp.getLeft()) * computeNumberExpression(exp.getRight());
-			case DIV :
-				return computeNumberExpression(exp.getLeft()) / computeNumberExpression(exp.getRight());
-			default :
-				return -1;
-		}
-	}
-	
-	public boolean isNumberExpression(ExpressionElement e) {
-		if (e instanceof Variable) return e instanceof IntegerVariable;
-		if (e instanceof Data) return e instanceof IntegerData;
-		switch(((Expression) e).getOperator()) {
-			case ADD :
-			case SUB :
-			case MUL :
-			case DIV :
-				return true;
-			default :
-				return false;
-		}
-	}
-	
-	public boolean computeBooleanExpression(ExpressionElement e) {
-		if (e instanceof BooleanVariable) return ((BooleanData) ((Variable) e).getValue() ).isValue();
-		if (e instanceof BooleanData) return ((BooleanData) e).isValue();
-		Expression exp = (Expression) e;
-		switch(exp.getOperator()) {
-			case EQ :
-				if (isNumberExpression(exp))
-					return computeNumberExpression(exp.getLeft()) == computeNumberExpression(exp.getRight());
+				result = new BooleanDataImpl();
+				if (left instanceof IntegerData)
+					((BooleanData)result).setValue(((IntegerData) left).getValue() == ((IntegerData) right).getValue());
 				else 
-					return computeBooleanExpression(exp.getLeft()) == computeBooleanExpression(exp.getRight());
+					((BooleanData)result).setValue(((BooleanData) left).isValue() == ((BooleanData) right).isValue());
+				break;
 			case GT :
-				return computeNumberExpression(exp.getLeft()) > computeNumberExpression(exp.getRight());
+				result = new BooleanDataImpl();
+				((BooleanData)result).setValue(((IntegerData) left).getValue() > ((IntegerData) right).getValue());
+				break;
 			case LT :
-				return computeNumberExpression(exp.getLeft()) < computeNumberExpression(exp.getRight());
+				result = new BooleanDataImpl();
+				((BooleanData)result).setValue(((IntegerData) left).getValue() < ((IntegerData) right).getValue());
+				break;
 			case GTE :
-				return computeNumberExpression(exp.getLeft()) >= computeNumberExpression(exp.getRight());
+				result = new BooleanDataImpl();
+				((BooleanData)result).setValue(((IntegerData) left).getValue() >= ((IntegerData) right).getValue());
+				break;
 			case LTE :
-				return computeNumberExpression(exp.getLeft()) <= computeNumberExpression(exp.getRight());
+				result = new BooleanDataImpl();
+				((BooleanData)result).setValue(((IntegerData) left).getValue() <= ((IntegerData) right).getValue());
+				break;
 			case AND :
-				return computeBooleanExpression(exp.getLeft()) && computeBooleanExpression(exp.getRight());
+				result = new BooleanDataImpl();
+				((BooleanData)result).setValue(((BooleanData) left).isValue() && ((BooleanData) right).isValue());
+				break;
 			case OR :
-				return computeBooleanExpression(exp.getLeft()) || computeBooleanExpression(exp.getRight());
+				result = new BooleanDataImpl();
+				((BooleanData)result).setValue(((BooleanData) left).isValue() || ((BooleanData) right).isValue());
+				break;
 			case NEQ :
-				if (isNumberExpression(exp))
-					return computeNumberExpression(exp.getLeft()) != computeNumberExpression(exp.getRight());
+				result = new BooleanDataImpl();
+				if (left instanceof IntegerData)
+					((BooleanData)result).setValue(((IntegerData) left).getValue() != ((IntegerData) right).getValue());
 				else 
-					return computeBooleanExpression(exp.getLeft()) != computeBooleanExpression(exp.getRight());
+					((BooleanData)result).setValue(((BooleanData) left).isValue() != ((BooleanData) right).isValue());
+				break;
 			case NOT :
-				return !computeBooleanExpression(exp.getLeft());
-			default :
-				return false;
+				result = new BooleanDataImpl();
+				((BooleanData)result).setValue(!((BooleanData) left).isValue());
+				break;
 		}
+		
+		return result;
 	}
-	
-	public void computeAssignment(Assignment a) {
-		if (a.getVariable() instanceof IntegerVariable)
-			((IntegerData) ((IntegerVariable) a.getVariable()).getValue()).setValue(computeNumberExpression(a.getExpression()));
-		else 
-			((BooleanData) ((BooleanVariable) a.getVariable()).getValue()).setValue(computeBooleanExpression(a.getExpression()));
+
+	public void computeOperations(Operation op) {
+		System.out.println("computeOperations");
+		if (op != null) {
+			for (Assignment a : op.getContents()) {
+				a.getVariable().setValue(computeExpression(a.getExpression()));
+			}
+		} else {
+			System.out.println("op is null");
+		}
+		
 	}
 	
 	public void processEvent(StateMachine sm, String event) {
 		Transition trans = this.getTriggerableTransition(event, sm);
 		if (trans != null) {
 			Expression guard = trans.getGuard();
-			if (guard != null) { // has guard
+			//if (guard != null) { // has guard
 				this.unactiveStateHierarchy(trans.getSource());
 				State target = trans.getTarget();
 				this.activeStateHierarchy(target);
-			}
+				if (target instanceof CompositeState)
+					computeOperations(getLeafActiveState((CompositeState)target).getOperation());
+				else
+					computeOperations(target.getOperation());
+			//}
+		} else {
+			System.out.println("trans is null");
+			
 		}
 	}
 	
@@ -300,6 +286,11 @@ public class StateMachineManipulation {
             event = scan.nextLine();
             if (!event.equals("end")) 
             	processEvent(sm,event);
+            System.out.println("Les variables ont pour valeur apres traitement : ");
+        	for (Variable v : sm.getVariables()) {
+            	System.out.println(v.getName() + " = " + v.getValue());
+        	}
+            System.out.println();
         }
 		scan.close();
 	}
