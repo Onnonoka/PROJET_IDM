@@ -149,14 +149,11 @@ public class StateMachineManipulation {
 		Transition trans = null;
 		while(!fini) {
 			for (Transition t : sm.getTransitions())
-				if (t.getEvent().getName().equals(evt) && (activeState == t.getSource())) {
-					System.out.println("In Guard");
+				if (t.getEvent().getName().equals(evt) && (activeState == t.getSource()))
 					if (t.getGuard() == null || ((BooleanData)computeExpression(t.getGuard())).isValue()) {
 						trans = t;
 						fini = true;
 					}
-					System.out.println("out Guard");
-				}
 			if (!fini) {
 				activeState = activeState.getContainer();
 				if (activeState == null) 
@@ -168,14 +165,23 @@ public class StateMachineManipulation {
 	
 	public Data computeExpression(ExpressionElement e) {
 		System.out.println(e.getClass().getName());
+		Data result = null;
 		
 		if (e instanceof VariableReference) return ((VariableReference) e).getVariable().getValue();
-		if (e instanceof Data) return (Data) e;
+		if (e instanceof IntegerData) {
+			result = new IntegerDataImpl();
+			((IntegerData)result).setValue(((IntegerData)e).getValue());
+			return result;
+		}
+		if (e instanceof BooleanData) {
+			result = new BooleanDataImpl();
+			((BooleanData)result).setValue(((BooleanData)e).isValue());
+			return result;
+		}
 		
 		Expression exp = (Expression) e;
 		Data left = computeExpression(exp.getLeft());
 		Data right = computeExpression(exp.getRight());
-		Data result = null;
 		
 		switch(exp.getOperator()) {
 			case ADD :
@@ -241,31 +247,22 @@ public class StateMachineManipulation {
 	}
 
 	public void computeOperations(Operation op) {
-		if (op != null) {
+		if (op != null)
 			for (Assignment a : op.getContents()) {
-				System.out.println("In Assignement");
 				a.getVariable().setValue(computeExpression(a.getExpression()));
-				System.out.println("Out Assignement");
 			}
-		}
 	}
 	
 	public void processEvent(StateMachine sm, String event) {
 		Transition trans = this.getTriggerableTransition(event, sm);
 		if (trans != null) {
-			Expression guard = trans.getGuard();
-			//if (guard != null) { // has guard
-				this.unactiveStateHierarchy(trans.getSource());
-				State target = trans.getTarget();
-				this.activeStateHierarchy(target);
-				if (target instanceof CompositeState)
-					computeOperations(getLeafActiveState((CompositeState)target).getOperation());
-				else
-					computeOperations(target.getOperation());
-			//}
-		} else {
-			System.out.println("trans is null");
-			
+			this.unactiveStateHierarchy(trans.getSource());
+			State target = trans.getTarget();
+			this.activeStateHierarchy(target);
+			if (target instanceof CompositeState)
+				computeOperations(getLeafActiveState((CompositeState)target).getOperation());
+			else
+				computeOperations(target.getOperation());
 		}
 	}
 	
@@ -281,6 +278,7 @@ public class StateMachineManipulation {
         	for (Variable v : sm.getVariables()) {
             	System.out.println(v.getName() + " = " + v.getValue());
         	}
+        	System.out.println("L'etat courrant est : " + getLeafActiveState(sm).getName());
         	System.out.print("Entrez le nom d'un �v�nement (\"end\" pour terminer) : ");
         	
             event = scan.nextLine();
@@ -296,7 +294,7 @@ public class StateMachineManipulation {
 		StateMachineManipulation util = new StateMachineManipulation();
 
 		System.out.println(" Chargement du mod�le");
-		StateMachine sm = util.getModelBase("models/Voiture.xmi");
+		StateMachine sm = util.getModelBase("models/Microwave.xmi");
 		System.out.println(" Mod�le charg�");
 
 		util.executeStateMachine(sm);
