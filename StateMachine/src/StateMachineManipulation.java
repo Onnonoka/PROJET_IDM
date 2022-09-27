@@ -15,6 +15,7 @@ import SimplStateMachine.*;
 import SimplStateMachine.impl.BooleanDataImpl;
 import SimplStateMachine.impl.DataImpl;
 import SimplStateMachine.impl.IntegerDataImpl;
+import SimplStateMachine.impl.SimplStateMachineFactoryImpl;
 
 public class StateMachineManipulation {
 
@@ -165,16 +166,17 @@ public class StateMachineManipulation {
 	
 	public Data computeExpression(ExpressionElement e) {
 		System.out.println(e.getClass().getName());
+		SimplStateMachineFactory smf = new SimplStateMachineFactoryImpl();
 		Data result = null;
 		
 		if (e instanceof VariableReference) return ((VariableReference) e).getVariable().getValue();
 		if (e instanceof IntegerData) {
-			result = new IntegerDataImpl();
+			result = smf.createIntegerData();
 			((IntegerData)result).setValue(((IntegerData)e).getValue());
 			return result;
 		}
 		if (e instanceof BooleanData) {
-			result = new BooleanDataImpl();
+			result = smf.createBooleanData();
 			((BooleanData)result).setValue(((BooleanData)e).isValue());
 			return result;
 		}
@@ -185,61 +187,61 @@ public class StateMachineManipulation {
 		
 		switch(exp.getOperator()) {
 			case ADD :
-				result = new IntegerDataImpl();
+				result = smf.createIntegerData();
 				((IntegerData)result).setValue(((IntegerData) left).getValue() + ((IntegerData) right).getValue());
 				break;
 			case SUB :
-				result = new IntegerDataImpl();
+				result = smf.createIntegerData();
 				((IntegerData)result).setValue(((IntegerData) left).getValue() - ((IntegerData) right).getValue());
 				break;
 			case MUL :
-				result = new IntegerDataImpl();
+				result = smf.createIntegerData();
 				((IntegerData)result).setValue(((IntegerData) left).getValue() * ((IntegerData) right).getValue());
 				break;
 			case DIV :
-				result = new IntegerDataImpl();
+				result = smf.createIntegerData();
 				((IntegerData)result).setValue(((IntegerData) left).getValue() / ((IntegerData) right).getValue());
 				break;
 			case EQ :
-				result = new BooleanDataImpl();
+				result = smf.createBooleanData();
 				if (left instanceof IntegerData)
 					((BooleanData)result).setValue(((IntegerData) left).getValue() == ((IntegerData) right).getValue());
 				else 
 					((BooleanData)result).setValue(((BooleanData) left).isValue() == ((BooleanData) right).isValue());
 				break;
 			case GT :
-				result = new BooleanDataImpl();
+				result = smf.createBooleanData();
 				((BooleanData)result).setValue(((IntegerData) left).getValue() > ((IntegerData) right).getValue());
 				break;
 			case LT :
-				result = new BooleanDataImpl();
+				result = smf.createBooleanData();
 				((BooleanData)result).setValue(((IntegerData) left).getValue() < ((IntegerData) right).getValue());
 				break;
 			case GTE :
-				result = new BooleanDataImpl();
+				result = smf.createBooleanData();
 				((BooleanData)result).setValue(((IntegerData) left).getValue() >= ((IntegerData) right).getValue());
 				break;
 			case LTE :
-				result = new BooleanDataImpl();
+				result = smf.createBooleanData();
 				((BooleanData)result).setValue(((IntegerData) left).getValue() <= ((IntegerData) right).getValue());
 				break;
 			case AND :
-				result = new BooleanDataImpl();
+				result = smf.createBooleanData();
 				((BooleanData)result).setValue(((BooleanData) left).isValue() && ((BooleanData) right).isValue());
 				break;
 			case OR :
-				result = new BooleanDataImpl();
+				result = smf.createBooleanData();
 				((BooleanData)result).setValue(((BooleanData) left).isValue() || ((BooleanData) right).isValue());
 				break;
 			case NEQ :
-				result = new BooleanDataImpl();
+				result = smf.createBooleanData();
 				if (left instanceof IntegerData)
 					((BooleanData)result).setValue(((IntegerData) left).getValue() != ((IntegerData) right).getValue());
 				else 
 					((BooleanData)result).setValue(((BooleanData) left).isValue() != ((BooleanData) right).isValue());
 				break;
 			case NOT :
-				result = new BooleanDataImpl();
+				result = smf.createBooleanData();
 				((BooleanData)result).setValue(!((BooleanData) left).isValue());
 				break;
 		}
@@ -294,7 +296,7 @@ public class StateMachineManipulation {
 		StateMachineManipulation util = new StateMachineManipulation();
 
 		System.out.println(" Chargement du mod�le");
-		StateMachine sm = util.getModelBase("models/Microwave.xmi");
+		StateMachine sm = util.getModelBase("models/Voiture.xmi");
 		System.out.println(" Mod�le charg�");
 
 		util.executeStateMachine(sm);

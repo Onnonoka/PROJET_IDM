@@ -50,7 +50,7 @@ public class BooleanDataImpl extends DataImpl implements BooleanData {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public BooleanDataImpl() {
+	protected BooleanDataImpl() {
 		super();
 	}
 

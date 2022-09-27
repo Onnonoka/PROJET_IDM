@@ -50,7 +50,7 @@ public class IntegerDataImpl extends DataImpl implements IntegerData {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public IntegerDataImpl() {
+	protected IntegerDataImpl() {
 		super();
 	}
 

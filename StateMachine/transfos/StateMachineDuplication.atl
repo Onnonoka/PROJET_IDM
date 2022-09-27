@@ -1,8 +1,11 @@
 -- @path MM=/StateMachine/metaModels/StateMachine.ecore
 
+----------------------------------------------------------------------------------------------------------
+-- Fait un pas d'avancement pour l'evenement accelerer depuis l'etat par initial pour le model Voiture.xmi
+----------------------------------------------------------------------------------------------------------
+
 module StateMachineDuplication;
 create result : MM from model : MM;
-
 
 ---------- STATEMACHINE ----------
 
