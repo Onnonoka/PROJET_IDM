@@ -4,7 +4,7 @@
 -- Fait un pas d'avancement pour l'evenement accelerer depuis l'etat par initial pour le model Voiture.xmi
 ----------------------------------------------------------------------------------------------------------
 
-module StateMachineDuplication;
+module StateMachineInitialisation;
 create result : MM from model : MM;
 
 ---------- STATEMACHINE ----------
@@ -16,7 +16,7 @@ to
 	 targetStateMachine : MM!StateMachine(
 	 	 name <- sourceStateMachine.name,
 	 	 container <- sourceStateMachine.container,
-	 	 isActive <- sourceStateMachine.isActive,
+	 	 isActive <- true,
 	 	 operation <- sourceStateMachine.operation,
 	 	 states <- sourceStateMachine.states,
 	 	 initialState <- sourceStateMachine.initialState,
@@ -24,6 +24,10 @@ to
 	 	 events <- sourceStateMachine.events,
 	 	 variables <- sourceStateMachine.variables
 	 )
+do {
+	sourceStateMachine.initialState.referencedState.isActive <- true;
+	('Transformation OK').println();
+}
 } 
 
 

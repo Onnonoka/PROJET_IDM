@@ -4,8 +4,16 @@
 -- Fait un pas d'avancement pour l'evenement accelerer depuis l'etat par initial pour le model Voiture.xmi
 ----------------------------------------------------------------------------------------------------------
 
-module StateMachineDuplication;
+module StateMachineAccelerer;
 create result : MM from model : MM;
+
+---------- HELPER ----------
+
+helper context MM!State def: leaf : MM!State = 
+	if self.oclIsTypeOf(MM!CompositeState)
+	then self.initialState.referencedState.leaf
+	else self
+	endif;
 
 ---------- STATEMACHINE ----------
 
@@ -45,17 +53,20 @@ to
 
 rule duplicateCompositeState { 
 from
-	 sourceCompositeState : MM!CompositeState (sourceCompositeState.oclIsTypeOf(MM!CompositeState))
+	 sourceCompositeState : MM!CompositeState (
+	 	sourceCompositeState.oclIsTypeOf(MM!CompositeState)
+		)
 to
 	 targetCompositeState : MM!CompositeState(
 	 	 name <- sourceCompositeState.name,
 	 	 container <- sourceCompositeState.container,
-	 	 isActive <- sourceCompositeState.isActive,
+	 	 isActive <- true,
 	 	 operation <- sourceCompositeState.operation,
 	 	 states <- sourceCompositeState.states,
 	 	 initialState <- sourceCompositeState.initialState
 	 )
 } 
+
 
 
 ---------- INITIALSTATE ----------
@@ -74,7 +85,10 @@ to
 
 rule duplicateTransition { 
 from
-	 sourceTransition : MM!Transition
+	 sourceTransition : MM!Transition (
+	 	not sourceTransition.source.isActive or 
+		sourceTransition.event.name <> 'accelerer'
+	 )
 to
 	 targetTransition : MM!Transition(
 	 	 source <- sourceTransition.source,
@@ -82,6 +96,30 @@ to
 	 	 event <- sourceTransition.event,
 	 	 guard <- sourceTransition.guard
 	 )
+} 
+
+---------- TRANSITION with source isActive and event = accelerer ----------
+
+rule handleTransition { 
+from
+	 sourceTransition : MM!Transition (
+	 	sourceTransition.source.isActive and
+		sourceTransition.event.name = 'accelerer'
+	 )
+to
+	 targetTransition : MM!Transition(
+	 	 source <- sourceTransition.source,
+	 	 target <- sourceTransition.target,
+	 	 event <- sourceTransition.event,
+	 	 guard <- sourceTransition.guard
+	 )
+do {
+	targetTransition.source.isActive <- false;
+	targetTransition.source.leaf.isActive <- false;
+	targetTransition.target.isActive <- true;
+	targetTransition.target.leaf.isActive <- true;
+	('Transition OK').println();
+}
 } 
 
 ---------- EVENT ----------
